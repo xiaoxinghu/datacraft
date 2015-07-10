@@ -1,4 +1,4 @@
-module Bricker
+module Doem
   class Context
     def providers
       @providers ||= ProviderRegistry.new

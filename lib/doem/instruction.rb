@@ -1,4 +1,4 @@
-module Bricker
+module Doem
   # Building Instruction
   class Instruction
     attr_reader :context

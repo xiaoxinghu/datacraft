@@ -1,17 +1,20 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'bricker/version'
+require 'doem/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'bricker'
-  spec.version       = Bricker::VERSION
+  spec.name          = 'doem'
+  spec.version       = Doem::VERSION
   spec.authors       = ['Xiaoxing Hu']
   spec.email         = ['dawnstar.hu@gmail.com']
 
-  spec.summary       = 'Manipulate data like lego bricks.'
-  spec.description   = spec.summary
-  spec.homepage      = 'https://github.com/xiaoxinghu/bricker'
+  spec.summary       = 'Data OEM (Original Equipment Manufacturer)'
+  spec.description   = 'doem works like an OEM but for data, '\
+  'get data from source, process them, build the products '\
+  'or parts that is used in another end product.'\
+  'You get to desgin the instructions with a comprehensive DSL.'
+  spec.homepage      = 'https://github.com/xiaoxinghu/doem'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
@@ -29,6 +32,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 1.10'
   spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'minitest'
-  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'minitest', '~> 0'
+  spec.add_development_dependency 'pry', '~> 0'
 end

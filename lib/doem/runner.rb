@@ -1,4 +1,4 @@
-module Bricker
+module Doem
   # The runner for the whole process
   module Runner
     def run(instruction)

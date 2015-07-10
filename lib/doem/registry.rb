@@ -1,4 +1,4 @@
-module Bricker
+module Doem
   # for normalizing blocks
   class CompatiableProc < Proc
     alias_method :run, :call
