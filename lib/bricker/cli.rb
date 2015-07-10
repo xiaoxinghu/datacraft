@@ -1,3 +1,5 @@
+require 'bricker'
+
 module Bricker
   # command line interface
   class Cli
