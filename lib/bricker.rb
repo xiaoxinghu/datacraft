@@ -1,7 +1,8 @@
 require 'bricker/version'
-require 'bricker/building_instruction'
+require 'bricker/registry'
+require 'bricker/context'
+require 'bricker/instruction'
 require 'bricker/runner'
-require 'bricker/tester'
 
 module Bricker
   extend Bricker::Runner

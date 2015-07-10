@@ -1,4 +1,5 @@
 module Bricker
+  # command line interface
   class Cli
     def self.run(args)
       unless args.size == 1
@@ -7,7 +8,7 @@ module Bricker
       end
       filename = args[0]
       instruction = Instruction.from_file filename
-      Bricker.build(instruction)
+      Bricker.run instruction
     end
   end
 end
