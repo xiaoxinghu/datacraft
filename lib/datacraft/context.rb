@@ -1,4 +1,4 @@
-module Doem
+module Datacraft
   class Context
     def providers
       @providers ||= ProviderRegistry.new

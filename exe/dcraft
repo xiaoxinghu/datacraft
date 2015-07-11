@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'thor'
+require_relative '../lib/datacraft/cli'
+
+Datacraft::Cli.start(ARGV)

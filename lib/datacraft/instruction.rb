@@ -1,4 +1,4 @@
-module Doem
+module Datacraft
   # Building Instruction
   class Instruction
     attr_reader :context
@@ -32,6 +32,17 @@ module Doem
       instruction = Instruction.new
       instruction.instance_eval(script_content)
       instruction
+    end
+
+    def self.check(filename)
+      begin
+        script_content = IO.read(filename)
+        instruction = Instruction.new
+        instruction.instance_eval(script_content)
+        'Looks good.'
+      rescue InvalidInstruction => e
+        e.message
+      end
     end
   end
 end

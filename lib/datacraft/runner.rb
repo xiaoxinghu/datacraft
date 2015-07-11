@@ -1,4 +1,4 @@
-module Doem
+module Datacraft
   # The runner for the whole process
   module Runner
     def run(instruction)

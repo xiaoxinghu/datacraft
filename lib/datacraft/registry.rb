@@ -1,4 +1,4 @@
-module Doem
+module Datacraft
   # for normalizing blocks
   class CompatiableProc < Proc
     alias_method :run, :call
@@ -12,22 +12,19 @@ module Doem
       @items = []
     end
 
-    def mandatory_methods
-      []
-    end
+    attr_accessor :mandatory_methods
 
     def <<(val)
       klass = val[:klass]
       block = val[:block]
       if klass
-        fail "#{klass.name} needs to implement methods: "\
+        fail InvalidInstruction, "#{klass.name} needs to implement methods: "\
           "#{mandatory_methods}" unless valid? klass
-        @items << val[:klass].new(*val[:args])
       elsif block
-        @items << CompatiableProc.new(&block)
       else
         fail 'registry error'
       end
+      @items << val
     end
 
     def valid?(klass)
@@ -37,8 +34,15 @@ module Doem
     end
 
     def each
-      @items.each do |item|
-        yield item
+      @instances ||= @items.map do |i|
+        if i[:klass]
+          i[:klass].new(*i[:args])
+        elsif i[:block]
+          CompatiableProc.new(&i[:block])
+        end
+      end
+      @instances.each do |instance|
+        yield instance
       end
     end
   end
@@ -51,7 +55,7 @@ module Doem
 
   class ConsumerRegistry < Registry
     def mandatory_methods
-      [:<<, :close]
+      [:<<]
     end
   end
 

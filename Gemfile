@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in doem.gemspec
+# Specify your gem's dependencies in datacraft.gemspec
 gemspec
