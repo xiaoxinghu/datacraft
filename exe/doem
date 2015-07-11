@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'thor'
 require_relative '../lib/doem/cli'
 
-Doem::Cli.run(ARGV)
+Doem::Cli.start(ARGV)
