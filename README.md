@@ -3,6 +3,10 @@
 Play with data like a Pro, and have fun like Minecraft.
 
 [![Gem Version](https://badge.fury.io/rb/datacraft.svg)](http://badge.fury.io/rb/datacraft)
+[![Build Status](https://travis-ci.org/xiaoxinghu/datacraft.svg?branch=master)](https://travis-ci.org/xiaoxinghu/datacraft)
+[![Dependency Status](https://gemnasium.com/xiaoxinghu/datacraft.svg)](https://gemnasium.com/xiaoxinghu/datacraft)
+[![Code Climate](https://codeclimate.com/github/xiaoxinghu/datacraft/badges/gpa.svg)](https://codeclimate.com/github/xiaoxinghu/datacraft)
+
 ## Installation
 
 Add this line to your application's Gemfile:
