@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module Datacraft
   # for normalizing blocks
   class CompatiableProc < Proc
@@ -8,11 +10,23 @@ module Datacraft
 
   # common registry
   class Registry
+    extend Forwardable
+    def_delegators :instances, :each, :map
     def initialize
       @items = []
     end
 
     attr_accessor :mandatory_methods
+
+    def instances
+      @instances ||= @items.map do |i|
+        if i[:klass]
+          i[:klass].new(*i[:args])
+        elsif i[:block]
+          CompatiableProc.new(&i[:block])
+        end
+      end
+    end
 
     def <<(val)
       klass = val[:klass]
@@ -30,19 +44,6 @@ module Datacraft
     def valid?(klass)
       mandatory_methods.all? do |m|
         klass.method_defined? m
-      end
-    end
-
-    def each
-      @instances ||= @items.map do |i|
-        if i[:klass]
-          i[:klass].new(*i[:args])
-        elsif i[:block]
-          CompatiableProc.new(&i[:block])
-        end
-      end
-      @instances.each do |instance|
-        yield instance
       end
     end
   end

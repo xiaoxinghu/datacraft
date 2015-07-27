@@ -27,6 +27,10 @@ module Datacraft
       @context.post_hooks << { block: block }
     end
 
+    def set(key, value)
+      @context.options[key.to_sym] = value
+    end
+
     def self.from_file(filename)
       script_content = IO.read(filename)
       instruction = Instruction.new

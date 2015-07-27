@@ -19,5 +19,9 @@ module Datacraft
     def post_hooks
       @post_hooks ||= HookRegistry.new
     end
+
+    def options
+      @options ||= {}
+    end
   end
 end
