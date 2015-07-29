@@ -5,34 +5,23 @@ module Datacraft
   module Runner
     # run the instruction
     def run(instruction)
-      context = instruction.context
+      @context = instruction.context
       measurements = []
       measurements << Benchmark.measure('pre build:') do
-        context.pre_hooks.each(&:call)
+        @context.pre_hooks.each(&:call)
       end
       measurements << Benchmark.measure('process rows:') do
-        if context.options[:parallel]
-          pprocess_rows(
-            context.providers,
-            context.tweakers,
-            context.consumers,
-            context.options[:n_threads])
-        else
-          process_rows(
-            context.providers,
-            context.tweakers,
-            context.consumers)
-        end
+        @context.options[:parallel] ? pprocess_rows : process_rows
       end
 
       measurements << Benchmark.measure('build:') do
-        build context.consumers
+        build @context.consumers
       end
 
       measurements << Benchmark.measure('post build:') do
-        context.post_hooks.each(&:call)
+        @context.post_hooks.each(&:call)
       end
-      report measurements if context.options[:benchmark]
+      report measurements if @context.options[:benchmark]
     end
 
     # output benchmark results
@@ -45,41 +34,37 @@ module Datacraft
     end
 
     # process rows sequentially
-    def process_rows(providers, tweakers, consumers)
-      providers.each do |provider|
+    def process_rows
+      @context.providers.each do |provider|
         provider.each do |row|
-          tweakers.each do |tweaker|
-            row = tweaker.tweak row
-            break unless row
-          end
-          # nil means to dismiss the row
-          next unless row
-          consumers.each do |consumer|
-            consumer << row
-          end
+          process row
         end
       end
     end
 
+    # tweak & consume one row
+    def process(row)
+      @context.tweakers.each do |tweaker|
+        row = tweaker.tweak row
+        return nil unless row
+      end
+      @context.consumers.each do |consumer|
+        consumer << row
+      end
+    end
+
     # process rows in parallel
-    def pprocess_rows(providers, tweakers, consumers, max_threads)
-      thread_number = [providers.size, max_threads].min
+    def pprocess_rows
+      thread_number = [@context.providers.size,
+                       @context.options[:n_threads]].min
       queue = Queue.new
-      providers.each { |p| queue << p }
-      threads = (0...thread_number).map do |tn|
+      @context.providers.each { |p| queue << p }
+      threads = thread_number.times.map do |tn|
         Thread.new do
           until queue.empty?
+            puts ">> thread #{tn} working..."
             p = queue.pop(true)
-            p.each do |row|
-              tweakers.each do |tweaker|
-                row = tweaker.tweak row
-                break unless row
-              end
-              next unless row
-              consumers.each do |consumer|
-                consumer << row
-              end
-            end
+            p.each { |row| process row }
           end
         end
       end
