@@ -1,5 +1,11 @@
 module Datacraft
   class Context
+    def initialize
+      options[:parallel] = false
+      options[:benchmark] = false
+      options[:n_threads] = 8
+    end
+
     def providers
       @providers ||= ProviderRegistry.new
     end

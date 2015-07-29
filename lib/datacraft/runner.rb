@@ -15,7 +15,8 @@ module Datacraft
           pprocess_rows(
             context.providers,
             context.tweakers,
-            context.consumers)
+            context.consumers,
+            context.options[:n_threads])
         else
           process_rows(
             context.providers,
@@ -61,17 +62,23 @@ module Datacraft
     end
 
     # process rows in parallel
-    def pprocess_rows(providers, tweakers, consumers)
-      threads = providers.map do |provider|
-        Thread.new(provider) do |p|
-          p.each do |row|
-            tweakers.each do |tweaker|
-              row = tweaker.tweak row
-              break unless row
-            end
-            next unless row
-            consumers.each do |consumer|
-              consumer << row
+    def pprocess_rows(providers, tweakers, consumers, max_threads)
+      thread_number = [providers.size, max_threads].min
+      queue = Queue.new
+      providers.each { |p| queue << p }
+      threads = (0...thread_number).map do |tn|
+        Thread.new do
+          until queue.empty?
+            p = queue.pop(true)
+            p.each do |row|
+              tweakers.each do |tweaker|
+                row = tweaker.tweak row
+                break unless row
+              end
+              next unless row
+              consumers.each do |consumer|
+                consumer << row
+              end
             end
           end
         end

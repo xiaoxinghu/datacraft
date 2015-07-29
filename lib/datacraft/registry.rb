@@ -11,7 +11,7 @@ module Datacraft
   # common registry
   class Registry
     extend Forwardable
-    def_delegators :instances, :each, :map
+    def_delegators :instances, :each, :map, :size
     def initialize
       @items = []
     end
