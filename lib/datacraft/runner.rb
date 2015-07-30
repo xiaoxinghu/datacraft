@@ -61,10 +61,16 @@ module Datacraft
       @context.providers.each { |p| queue << p }
       threads = thread_number.times.map do
         Thread.new do
-          until queue.empty?
-            p = queue.pop(true)
-            p.each { |row| process row }
+          begin
+            while p = queue.pop(true)
+              p.each { |row| process row }
+            end
+          rescue ThreadError
           end
+          # until queue.empty?
+          #   p = queue.pop(true)
+          #   p.each { |row| process row }
+          # end
         end
       end
       threads.each(&:join)
