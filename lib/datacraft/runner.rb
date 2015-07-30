@@ -59,10 +59,9 @@ module Datacraft
                        @context.options[:n_threads]].min
       queue = Queue.new
       @context.providers.each { |p| queue << p }
-      threads = thread_number.times.map do |tn|
+      threads = thread_number.times.map do
         Thread.new do
           until queue.empty?
-            puts ">> thread #{tn} working..."
             p = queue.pop(true)
             p.each { |row| process row }
           end
