@@ -9,9 +9,15 @@ module Datacraft
       Datacraft.run instruction
     end
 
-    desc 'check [INSTRUCTION_FILE]', 'evaluate the instruction without running it'
+    desc 'check [INSTRUCTION_FILE]',
+         'evaluate the instruction without running it'
     def check(filename)
-      puts Instruction.check filename
+      begin
+        Instruction.from_file filename
+        puts 'You are ready to go.'
+      rescue InvalidInstruction => e
+        puts e
+      end
     end
   end
 end

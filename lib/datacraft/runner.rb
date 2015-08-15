@@ -5,23 +5,33 @@ module Datacraft
   module Runner
     # run the instruction
     def run(instruction)
-      @context = instruction.context
+      @inst = instruction
       measurements = []
-      measurements << Benchmark.measure('pre build:') do
-        @context.pre_hooks.each(&:call)
+
+      # run pre_build hooks
+      if @inst.respond_to? :pre_hooks
+        measurements << Benchmark.measure('pre build:') do
+          @inst.pre_hooks.each(&:call)
+        end
       end
+
+      # process the rows
       measurements << Benchmark.measure('process rows:') do
-        @context.options[:parallel] ? pprocess_rows : process_rows
+        @inst.options[:parallel] ? pprocess_rows : process_rows
       end
 
+      # build
       measurements << Benchmark.measure('build:') do
-        build @context.consumers
+        build @inst.consumers
       end
 
-      measurements << Benchmark.measure('post build:') do
-        @context.post_hooks.each(&:call)
+      # run post_build hooks
+      if @inst.respond_to? :post_hooks
+        measurements << Benchmark.measure('post build:') do
+          @inst.post_hooks.each(&:call)
+        end
       end
-      report measurements if @context.options[:benchmark]
+      report measurements if @inst.options[:benchmark]
     end
 
     # output benchmark results
@@ -35,8 +45,8 @@ module Datacraft
 
     # process rows sequentially
     def process_rows
-      @context.providers.each do |provider|
-        provider.each do |row|
+      @inst.sources.each do |source|
+        source.each do |row|
           process row
         end
       end
@@ -44,21 +54,21 @@ module Datacraft
 
     # tweak & consume one row
     def process(row)
-      @context.tweakers.each do |tweaker|
+      @inst.tweakers.each do |tweaker|
         row = tweaker.tweak row
         return nil unless row
       end
-      @context.consumers.each do |consumer|
+      @inst.consumers.each do |consumer|
         consumer << row
       end
     end
 
     # process rows in parallel
     def pprocess_rows
-      thread_number = [@context.providers.size,
-                       @context.options[:n_threads]].min
+      thread_number = [@inst.sources.size,
+                       @inst.options[:n_threads]].min
       queue = Queue.new
-      @context.providers.each { |p| queue << p }
+      @inst.sources.each { |p| queue << p }
       threads = thread_number.times.map do
         Thread.new do
           begin
@@ -67,10 +77,6 @@ module Datacraft
             end
           rescue ThreadError
           end
-          # until queue.empty?
-          #   p = queue.pop(true)
-          #   p.each { |row| process row }
-          # end
         end
       end
       threads.each(&:join)
