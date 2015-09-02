@@ -128,6 +128,22 @@ set :benchmark, true
 
 Then run your script, you will see the detailed benchmark information.
 
+### hooks
+
+Do something before or/and after the process, define hook blocks.
+
+```ruby
+pre_build do
+  # do something
+end
+
+post_build do
+  # do something
+end
+```
+
+It is pretty self explanatory.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
