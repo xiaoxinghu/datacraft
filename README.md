@@ -7,6 +7,21 @@ Play with data like a Pro, and have fun like Minecraft.
 [![Dependency Status](https://gemnasium.com/xiaoxinghu/datacraft.svg)](https://gemnasium.com/xiaoxinghu/datacraft)
 [![Code Climate](https://codeclimate.com/github/xiaoxinghu/datacraft/badges/gpa.svg)](https://codeclimate.com/github/xiaoxinghu/datacraft)
 
+## what is it
+
+`Datacraft` is an ETL tool highly inspired by open source project [kiba](https://github.com/thbar/kiba). But we need certain advanced features which current kiba does not provide, so we decided to roll out our own version. Here are the major ones are already implemented:
+
+- build action after loading data (explained later)
+- parallel processing
+- lazy initialization
+
+And we need more. Here are some ideas bouncing around in my head and might become new features.
+
+- data flow, pipelining
+- dry run with analytic results
+- snapshot the data on change points and generate report for intuitive debugging.
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -25,7 +40,93 @@ Or install it yourself as:
 
 ## Usage
 
-    $ dcraft build inst.rb
+Here is an example of instruction script.
+
+```ruby
+
+# data source class
+class CsvFile
+  def initialize(csv_file)
+    @csv = CSV.open(csv_file, headers: true, header_converters: :symbol)
+  end
+
+  # mandatory method for data source class.
+  # Should always yield data rows.
+  def each
+    @csv.each do |row|
+      yield(row.to_hash)
+    end
+    @csv.close
+  end
+end
+
+# Data consumer class. Here we just output statistic
+# information of the data set.
+class ReportBuilder
+  def initialize
+    @total_employee = 0
+    @total_age = 0
+  end
+
+  # mandatory method for consume data
+  def <<(row)
+    @total_employee += 1
+    @total_age += row[:age].to_i
+  end
+
+  # optional method for build final product
+  def build
+    File.open('report.txt', 'w') do |f|
+      f.puts "Total Employee: #{@total_employee}"
+      f.puts "Total Age: #{@total_age}"
+      f.puts "Average Age: #{@total_age / @total_employee}" unless @total_employee == 0
+    end
+  end
+end
+
+retirement_age = 60
+# define data source
+from CsvFile, 'employees.csv'
+
+total_rows = 0
+# tweak each row
+tweak do |row|
+  # eliminate the retired ones, return nil means to
+  # discard the data
+  total_rows += 1
+  row[:age].to_i < retirement_age ? row : nil
+end
+
+# define data consumer
+to ReportBuilder
+```
+
+Run the script:
+
+```bash
+$ dcraft build inst.rb
+```
+
+### parallel processing
+
+To improve the performance of the script, you can enable multithreading by setting the option.
+
+```ruby
+set :parallel, true # default is false
+set :n_threads, 4 # default 8
+```
+
+Please notice, due to [GIL](https://en.wikipedia.org/wiki/Global_Interpreter_Lock), we are not able to take advantage of multicore system with parallel processing. But when the threads are block by heavy I/O, which is very common under this circumstance, then it can make considerable performance boost.
+
+### benchmark
+
+Sometimes you just want to know: **why is my script so slow?** In order to efficiently spot the bottleneck of your script, you can enable `benchmark mode`.
+
+```ruby
+set :benchmark, true
+```
+
+Then run your script, you will see the detailed benchmark information.
 
 ## Development
 
