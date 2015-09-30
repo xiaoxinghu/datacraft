@@ -5,16 +5,17 @@ module Datacraft
   class Cli < Thor
     desc 'build [INSTRUCTION_FILE]', 'build the data by instruction'
     def build(filename)
-      instruction = Instruction.from_file filename
-      Datacraft.run instruction
+      Datacraft.run check(filename)
     end
 
     desc 'check [INSTRUCTION_FILE]',
          'evaluate the instruction without running it'
     def check(filename)
       begin
-        Instruction.from_file filename
+        script = IO.read(filename)
+        instruction = Datacraft.parse script
         puts 'You are ready to go.'
+        instruction
       rescue InvalidInstruction => e
         puts e
       end

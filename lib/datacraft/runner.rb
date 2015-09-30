@@ -34,6 +34,8 @@ module Datacraft
       report measurements if @inst.options[:benchmark]
     end
 
+    private
+
     # output benchmark results
     def report(measurements)
       width = measurements.max_by { |m| m.label.size }.label.size + 1

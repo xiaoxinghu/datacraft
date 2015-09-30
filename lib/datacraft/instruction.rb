@@ -33,13 +33,5 @@ module Datacraft
     def set(key, value)
       options[key.to_sym] = value
     end
-
-    def self.from_file(filename)
-      script_content = IO.read(filename)
-      instruction = Instruction.new
-      instruction.instance_eval(script_content)
-      instruction.validate
-      instruction
-    end
   end
 end
